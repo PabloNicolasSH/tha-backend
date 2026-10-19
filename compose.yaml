@@ -1,0 +1,40 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: tha
+      MYSQL_USER: tha
+      MYSQL_PASSWORD: tha
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - tha-mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # interfaz web
+
+  # Proveedor SSO (OpenID Connect) SOLO para probar el inicio de sesión con SSO en local.
+  # No se levanta con "docker compose up": usa  docker compose --profile sso up -d
+  keycloak:
+    profiles: ["sso"]
+    image: quay.io/keycloak/keycloak:26.8.1
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    ports:
+      - "8180:8080"   # http://localhost:8180  (admin / admin)
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import:ro
+
+volumes:
+  tha-mysql:

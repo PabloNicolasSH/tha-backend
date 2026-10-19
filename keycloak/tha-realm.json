@@ -1,0 +1,52 @@
+{
+  "realm": "tha",
+  "displayName": "Cuenta corporativa (local)",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "clients": [
+    {
+      "clientId": "tha",
+      "name": "Tha (desarrollo)",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "tha-dev-secret",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:4200/*",
+        "http://localhost:4201/*",
+        "http://localhost:8080/*",
+        "http://localhost:8081/*",
+        "http://localhost:8082/*"
+      ],
+      "webOrigins": ["+"],
+      "defaultClientScopes": ["openid", "profile", "email"]
+    }
+  ],
+  "users": [
+    {
+      "username": "lucia.e2e@example.org",
+      "email": "lucia.e2e@example.org",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Lucía",
+      "lastName": "Prueba",
+      "credentials": [{ "type": "password", "value": "sso-dev-clave-2026", "temporary": false }]
+    },
+    {
+      "username": "sin.cuenta@example.org",
+      "email": "sin.cuenta@example.org",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Sin",
+      "lastName": "Cuenta",
+      "credentials": [{ "type": "password", "value": "sso-dev-clave-2026", "temporary": false }]
+    }
+  ]
+}
