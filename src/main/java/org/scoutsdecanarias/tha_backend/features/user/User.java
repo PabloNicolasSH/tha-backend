@@ -15,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.scoutsdecanarias.tha_backend.features.branch.Branch;
 import org.scoutsdecanarias.tha_backend.features.scout_group.ScoutGroup;
 
 import java.time.Instant;
@@ -56,6 +57,11 @@ public class User {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scout_group_id")
     private ScoutGroup scoutGroup;
+
+    /** Rama a la que pertenece la persona. No concede permisos: esos vienen del equipo de gestión de la rama. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "branch_id")
+    private Branch branch;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt = Instant.now();

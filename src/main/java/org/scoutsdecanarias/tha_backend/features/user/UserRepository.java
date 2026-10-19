@@ -15,6 +15,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     long countByScoutGroupId(Long scoutGroupId);
 
-    @EntityGraph(attributePaths = "scoutGroup")
+    @EntityGraph(attributePaths = {"scoutGroup", "branch"})
     List<User> findByStatusInOrderByCreatedAtAsc(Collection<UserStatus> statuses);
 }

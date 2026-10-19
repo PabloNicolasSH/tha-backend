@@ -4,6 +4,8 @@ import org.scoutsdecanarias.tha_backend.core.exception.ApiException;
 import org.scoutsdecanarias.tha_backend.core.mail.MailService;
 import org.scoutsdecanarias.tha_backend.features.auth.InviteProperties;
 import org.scoutsdecanarias.tha_backend.features.auth.PasswordSetupTokenService;
+import org.scoutsdecanarias.tha_backend.features.scout_group.ScoutGroup;
+import org.scoutsdecanarias.tha_backend.features.scout_group.ScoutGroupRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,23 +20,27 @@ import java.util.List;
 public class UserAdminService {
 
     public record RequestSummary(Long id, String email, String name, String surname, UserStatus status,
-                                 String scoutGroupName, Instant createdAt) {
+                                 Long scoutGroupId, String scoutGroupName, String branchName, Instant createdAt) {
 
         static RequestSummary from(User u) {
             return new RequestSummary(u.getId(), u.getEmail(), u.getName(), u.getSurname(), u.getStatus(),
-                    u.getScoutGroup() == null ? null : u.getScoutGroup().getName(), u.getCreatedAt());
+                    u.getScoutGroup() == null ? null : u.getScoutGroup().getId(),
+                    u.getScoutGroup() == null ? null : u.getScoutGroup().getName(),
+                    u.getBranch() == null ? null : u.getBranch().getName(), u.getCreatedAt());
         }
     }
 
     private final UserRepository users;
+    private final ScoutGroupRepository groups;
     private final PasswordSetupTokenService setupTokens;
     private final MailService mail;
     private final InviteProperties inviteProperties;
     private final String frontendUrl;
 
-    public UserAdminService(UserRepository users, PasswordSetupTokenService setupTokens, MailService mail,
+    public UserAdminService(UserRepository users, ScoutGroupRepository groups, PasswordSetupTokenService setupTokens, MailService mail,
                             InviteProperties inviteProperties, @Value("${tha.frontend-url}") String frontendUrl) {
         this.users = users;
+        this.groups = groups;
         this.setupTokens = setupTokens;
         this.mail = mail;
         this.inviteProperties = inviteProperties;
@@ -46,6 +52,26 @@ public class UserAdminService {
     public List<RequestSummary> openRequests() {
         return users.findByStatusInOrderByCreatedAtAsc(EnumSet.of(UserStatus.PENDING, UserStatus.INVITED))
                 .stream().map(RequestSummary::from).toList();
+    }
+
+    /** Corrige el grupo que la persona declaró (o lo quita) mientras la solicitud está pendiente. */
+    @Transactional
+    public RequestSummary changeGroup(Long id, Long groupId) {
+        User user = find(id);
+        if (user.getStatus() != UserStatus.PENDING) {
+            throw new ApiException(HttpStatus.CONFLICT, "El grupo solo se corrige antes de aprobar la solicitud");
+        }
+        if (groupId == null) {
+            user.setScoutGroup(null);
+        } else {
+            ScoutGroup group = groups.findById(groupId)
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "El grupo indicado no existe"));
+            if (!group.isActive()) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "El grupo indicado está desactivado");
+            }
+            user.setScoutGroup(group);
+        }
+        return RequestSummary.from(user);
     }
 
     @Transactional
