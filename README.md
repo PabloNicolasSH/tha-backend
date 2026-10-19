@@ -1,5 +1,7 @@
 # tha-backend
 
+[![CI](https://github.com/PabloNicolasSH/tha-backend/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/PabloNicolasSH/tha-backend/actions/workflows/ci.yml)
+
 API de **Tha** (Scouts de Canarias). Spring Boot 4.1 · Java 21 · MySQL 8.4 · Flyway.
 
 ## Arrancar en local
@@ -16,6 +18,8 @@ Usa el puerto 8080 (el de Spring Boot por defecto). Si tienes otro servicio en e
 > `MAVEN_OPTS="-Djavax.net.ssl.trustStoreType=WINDOWS-ROOT"`.
 
 ## Tests
+
+El **CI** de GitHub Actions (`.github/workflows/ci.yml`) compila y ejecuta estos mismos tests en cada pull request hacia `develop` o `main`, y en cada `push` a esas ramas. Si falla un test, el informe de Surefire queda como artefacto de la ejecución.
 
 ```bash
 ./mvnw test                   # requiere Docker (Testcontainers levanta un MySQL real, uno solo para toda la ejecución)
