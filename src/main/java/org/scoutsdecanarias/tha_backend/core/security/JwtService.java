@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Set;
 
 /**
  * Emite y lee los JWT de Tha: el access token (corto) y el token temporal que une la contraseña con el
@@ -48,7 +49,7 @@ public class JwtService {
         this.mfaDecoder = decoder;
     }
 
-    public String issueAccessToken(User user) {
+    public String issueAccessToken(User user, Set<Role> roles) {
         Instant now = Instant.now();
         return encode(JwtClaimsSet.builder()
                 .issuer(properties.issuer())
@@ -56,7 +57,7 @@ public class JwtService {
                 .issuedAt(now)
                 .expiresAt(now.plus(properties.expiration()))
                 .claim(TokenTypeValidator.CLAIM, TokenTypeValidator.ACCESS)
-                .claim("roles", user.getRoles().stream().map(Role::name).toList())
+                .claim("roles", roles.stream().map(Role::name).sorted().toList())
                 .build());
     }
 

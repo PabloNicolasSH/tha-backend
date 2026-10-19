@@ -2,6 +2,7 @@ package org.scoutsdecanarias.tha_backend.features.user;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,6 +15,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmailIgnoreCase(String email);
 
     long countByScoutGroupId(Long scoutGroupId);
+
+    /** El grupo de la persona (vacío si no tiene). */
+    @Query("select u.scoutGroup.id from User u where u.id = :userId")
+    Optional<Long> findScoutGroupId(Long userId);
 
     @EntityGraph(attributePaths = {"scoutGroup", "branch"})
     List<User> findByStatusInOrderByCreatedAtAsc(Collection<UserStatus> statuses);
