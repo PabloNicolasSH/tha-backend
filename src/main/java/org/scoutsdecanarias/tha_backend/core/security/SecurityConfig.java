@@ -61,7 +61,8 @@ public class SecurityConfig {
                                 "/api/auth/set-password",
                                 // segundo paso del login: aún no hay access token, se autentica con el mfaToken
                                 "/api/auth/mfa/verify", "/api/auth/mfa/email/send").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/auth/set-password/check", "/api/auth/sso/providers").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/auth/set-password/check", "/api/auth/sso/providers",
+                                "/api/scout-groups/public").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(o -> o.jwt(j -> j.jwtAuthenticationConverter(jwtAuthenticationConverter())));
         return http.build();
