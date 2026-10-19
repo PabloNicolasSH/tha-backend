@@ -29,7 +29,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Spring reutilice el contexto entre clases, y utilidades para crear usuarios e iniciar sesión.
  */
 @AutoConfigureMockMvc
-@SpringBootTest(properties = {
+// Servidor real en un puerto aleatorio (además de MockMvc): hay comportamientos, como el reenvío interno a /error,
+// que MockMvc no reproduce y solo se ven con HTTP de verdad.
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
         "tha.jwt.secret=test-secret-test-secret-test-secret-0123456789",
         "tha.jwt.issuer=tha",
         "tha.jwt.expiration=PT15M",

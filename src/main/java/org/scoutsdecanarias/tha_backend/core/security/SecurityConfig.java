@@ -1,6 +1,7 @@
 package org.scoutsdecanarias.tha_backend.core.security;
 
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
+import jakarta.servlet.DispatcherType;
 import org.scoutsdecanarias.tha_backend.features.auth.InviteProperties;
 import org.scoutsdecanarias.tha_backend.features.mfa.MfaProperties;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,6 +51,9 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(a -> a
+                        // Cuando una petición falla (JSON roto, tipo de contenido no admitido…) el contenedor la reenvía
+                        // internamente a /error. Si ese reenvío exigiera sesión, el error real (400, 415…) se convertiría en 401.
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers("/actuator/health/**").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/auth/login", "/api/auth/register",
