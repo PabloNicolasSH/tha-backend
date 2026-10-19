@@ -148,6 +148,10 @@ Frontend y API deben ser del mismo sitio (por ejemplo `tha.example.org` y `api.t
 - Límite de intentos del **login por contraseña** (el 2FA ya tiene el suyo).
 - Los tokens de invitación y los códigos por correo en memoria no sobreviven a reinicios ni se comparten entre varias instancias del backend; con más de una instancia habría que moverlos a la BD o a Redis.
 
+## Cómo contribuir
+
+Ramas (git flow), commits en inglés con Conventional Commits, pull requests y protección de ramas: ver [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## Estructura
 
 ```

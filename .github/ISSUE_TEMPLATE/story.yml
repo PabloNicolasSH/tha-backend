@@ -1,0 +1,35 @@
+name: Historia de usuario
+description: Una funcionalidad completa con sus criterios de aceptación
+title: "F0-XX · "
+labels: ["historia"]
+body:
+  - type: input
+    id: codigo
+    attributes:
+      label: Código de la historia
+      description: Del backlog, por ejemplo F0-12.
+    validations:
+      required: true
+  - type: textarea
+    id: historia
+    attributes:
+      label: Historia
+      description: "Como [persona], quiero [qué], para [por qué]."
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      description: Una casilla por comprobación verificable.
+      value: "- [ ] "
+    validations:
+      required: true
+  - type: textarea
+    id: notas
+    attributes:
+      label: Notas técnicas y pruebas
+  - type: textarea
+    id: fuera
+    attributes:
+      label: Fuera de alcance
