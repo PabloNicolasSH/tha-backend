@@ -29,7 +29,8 @@ public final class AuthDtos {
             @NotBlank @Email @Size(max = 255) String email,
             @NotBlank @Size(max = 120) String name,
             @NotBlank @Size(max = 160) String surname,
-            Long scoutGroupId) {
+            Long scoutGroupId,
+            Long branchId) {
     }
 
     public record SetPasswordRequest(

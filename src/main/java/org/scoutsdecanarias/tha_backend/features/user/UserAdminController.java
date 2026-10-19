@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,6 +18,10 @@ import java.util.List;
 @PreAuthorize("hasAnyRole('ADMIN', 'SECRETARY')")
 public class UserAdminController {
 
+    /** El grupo correcto de la solicitud; nulo la deja sin grupo ("Ninguno (federación)"). */
+    record GroupChange(Long scoutGroupId) {
+    }
+
     private final UserAdminService service;
 
     public UserAdminController(UserAdminService service) {
@@ -25,6 +31,11 @@ public class UserAdminController {
     @GetMapping
     List<UserAdminService.RequestSummary> list() {
         return service.openRequests();
+    }
+
+    @PutMapping("/{id}/group")
+    UserAdminService.RequestSummary changeGroup(@PathVariable Long id, @RequestBody GroupChange change) {
+        return service.changeGroup(id, change.scoutGroupId());
     }
 
     @PostMapping("/{id}/approve")

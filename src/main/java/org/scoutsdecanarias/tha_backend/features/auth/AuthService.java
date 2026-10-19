@@ -10,6 +10,7 @@ import org.scoutsdecanarias.tha_backend.features.auth.AuthDtos.UserDto;
 import org.scoutsdecanarias.tha_backend.features.mfa.MfaDtos.MfaChallenge;
 import org.scoutsdecanarias.tha_backend.features.mfa.MfaDtos.VerifyRequest;
 import org.scoutsdecanarias.tha_backend.features.mfa.MfaService;
+import org.scoutsdecanarias.tha_backend.features.branch.BranchRepository;
 import org.scoutsdecanarias.tha_backend.features.scout_group.ScoutGroupRepository;
 import org.scoutsdecanarias.tha_backend.features.user.User;
 import org.scoutsdecanarias.tha_backend.features.user.UserRepository;
@@ -38,17 +39,20 @@ public class AuthService {
 
     private final UserRepository users;
     private final ScoutGroupRepository groups;
+    private final BranchRepository branches;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwt;
     private final RefreshTokenService refreshTokens;
     private final PasswordSetupTokenService setupTokens;
     private final MfaService mfa;
 
-    public AuthService(UserRepository users, ScoutGroupRepository groups, PasswordEncoder passwordEncoder,
+    public AuthService(UserRepository users, ScoutGroupRepository groups, BranchRepository branches,
+                       PasswordEncoder passwordEncoder,
                        JwtService jwt, RefreshTokenService refreshTokens, PasswordSetupTokenService setupTokens,
                        MfaService mfa) {
         this.users = users;
         this.groups = groups;
+        this.branches = branches;
         this.passwordEncoder = passwordEncoder;
         this.jwt = jwt;
         this.refreshTokens = refreshTokens;
@@ -72,6 +76,13 @@ public class AuthService {
         if (request.scoutGroupId() != null) {
             user.setScoutGroup(groups.findById(request.scoutGroupId())
                     .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "El grupo indicado no existe")));
+            if (!user.getScoutGroup().isActive()) {
+                throw new ApiException(HttpStatus.BAD_REQUEST, "El grupo indicado ya no admite solicitudes");
+            }
+        }
+        if (request.branchId() != null) {
+            user.setBranch(branches.findById(request.branchId()).filter(b -> b.isActive())
+                    .orElseThrow(() -> new ApiException(HttpStatus.BAD_REQUEST, "La rama indicada no existe")));
         }
         users.save(user);
     }
