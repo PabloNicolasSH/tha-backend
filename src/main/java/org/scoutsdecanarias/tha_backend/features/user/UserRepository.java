@@ -13,6 +13,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByEmailIgnoreCase(String email);
 
+    long countByScoutGroupId(Long scoutGroupId);
+
     @EntityGraph(attributePaths = "scoutGroup")
     List<User> findByStatusInOrderByCreatedAtAsc(Collection<UserStatus> statuses);
 }

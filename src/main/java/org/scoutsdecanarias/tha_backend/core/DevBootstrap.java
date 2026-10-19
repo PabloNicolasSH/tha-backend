@@ -1,5 +1,7 @@
 package org.scoutsdecanarias.tha_backend.core;
 
+import org.scoutsdecanarias.tha_backend.features.scout_group.ScoutGroup;
+import org.scoutsdecanarias.tha_backend.features.scout_group.ScoutGroupRepository;
 import org.scoutsdecanarias.tha_backend.features.user.Role;
 import org.scoutsdecanarias.tha_backend.features.user.User;
 import org.scoutsdecanarias.tha_backend.features.user.UserRepository;
@@ -13,20 +15,25 @@ import org.springframework.stereotype.Component;
 
 import java.util.EnumSet;
 
-/** Crea una cuenta administradora en local si la base de datos está vacía. Nunca se activa en producción. */
+/**
+ * Datos de arranque en local: una cuenta administradora si no hay usuarios y el grupo Bentaya (el del piloto) si no
+ * hay grupos. Nunca se activa en producción.
+ */
 @Component
 @Profile("dev")
 class DevBootstrap implements ApplicationRunner {
 
     private final UserRepository users;
+    private final ScoutGroupRepository groups;
     private final PasswordEncoder passwordEncoder;
     private final String email;
     private final String password;
 
-    DevBootstrap(UserRepository users, PasswordEncoder passwordEncoder,
+    DevBootstrap(UserRepository users, ScoutGroupRepository groups, PasswordEncoder passwordEncoder,
                  @Value("${tha.bootstrap-admin.email}") String email,
                  @Value("${tha.bootstrap-admin.password}") String password) {
         this.users = users;
+        this.groups = groups;
         this.passwordEncoder = passwordEncoder;
         this.email = email;
         this.password = password;
@@ -34,6 +41,11 @@ class DevBootstrap implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        if (groups.count() == 0) {
+            ScoutGroup bentaya = new ScoutGroup();
+            bentaya.setName("Bentaya");
+            groups.save(bentaya);
+        }
         if (users.count() > 0) {
             return;
         }
