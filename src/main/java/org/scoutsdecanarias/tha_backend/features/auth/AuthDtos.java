@@ -40,9 +40,10 @@ public final class AuthDtos {
 
     public record UserDto(Long id, String email, String name, String surname, Set<Role> roles, Long scoutGroupId) {
 
-        public static UserDto from(User user) {
+        /** {@code roles}: los efectivos hoy (los guardados más los derivados de puestos de rama vigentes). */
+        public static UserDto from(User user, Set<Role> roles) {
             Long groupId = user.getScoutGroup() == null ? null : user.getScoutGroup().getId();
-            return new UserDto(user.getId(), user.getEmail(), user.getName(), user.getSurname(), user.getRoles(), groupId);
+            return new UserDto(user.getId(), user.getEmail(), user.getName(), user.getSurname(), roles, groupId);
         }
     }
 

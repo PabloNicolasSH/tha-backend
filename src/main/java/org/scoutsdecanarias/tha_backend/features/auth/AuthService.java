@@ -10,8 +10,10 @@ import org.scoutsdecanarias.tha_backend.features.auth.AuthDtos.UserDto;
 import org.scoutsdecanarias.tha_backend.features.mfa.MfaDtos.MfaChallenge;
 import org.scoutsdecanarias.tha_backend.features.mfa.MfaDtos.VerifyRequest;
 import org.scoutsdecanarias.tha_backend.features.mfa.MfaService;
+import org.scoutsdecanarias.tha_backend.features.access.EffectiveRoles;
 import org.scoutsdecanarias.tha_backend.features.branch.BranchRepository;
 import org.scoutsdecanarias.tha_backend.features.scout_group.ScoutGroupRepository;
+import org.scoutsdecanarias.tha_backend.features.user.Role;
 import org.scoutsdecanarias.tha_backend.features.user.User;
 import org.scoutsdecanarias.tha_backend.features.user.UserRepository;
 import org.scoutsdecanarias.tha_backend.features.user.UserStatus;
@@ -19,6 +21,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 @Service
 public class AuthService {
@@ -40,6 +44,7 @@ public class AuthService {
     private final UserRepository users;
     private final ScoutGroupRepository groups;
     private final BranchRepository branches;
+    private final EffectiveRoles effectiveRoles;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwt;
     private final RefreshTokenService refreshTokens;
@@ -47,12 +52,13 @@ public class AuthService {
     private final MfaService mfa;
 
     public AuthService(UserRepository users, ScoutGroupRepository groups, BranchRepository branches,
-                       PasswordEncoder passwordEncoder,
+                       EffectiveRoles effectiveRoles, PasswordEncoder passwordEncoder,
                        JwtService jwt, RefreshTokenService refreshTokens, PasswordSetupTokenService setupTokens,
                        MfaService mfa) {
         this.users = users;
         this.groups = groups;
         this.branches = branches;
+        this.effectiveRoles = effectiveRoles;
         this.passwordEncoder = passwordEncoder;
         this.jwt = jwt;
         this.refreshTokens = refreshTokens;
@@ -164,13 +170,14 @@ public class AuthService {
     @Transactional(readOnly = true)
     public UserDto me(Long userId) {
         return users.findById(userId)
-                .map(UserDto::from)
+                .map(u -> UserDto.from(u, effectiveRoles.of(u)))
                 .orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "Sesión no válida"));
     }
 
     private Session session(RefreshTokenService.Issued issued) {
-        AuthResponse body = new AuthResponse(jwt.issueAccessToken(issued.user()),
-                jwt.accessTokenLifetime().toSeconds(), UserDto.from(issued.user()));
+        Set<Role> roles = effectiveRoles.of(issued.user());
+        AuthResponse body = new AuthResponse(jwt.issueAccessToken(issued.user(), roles),
+                jwt.accessTokenLifetime().toSeconds(), UserDto.from(issued.user(), roles));
         return new Session(body, issued.rawToken(), issued.persistent());
     }
 }
