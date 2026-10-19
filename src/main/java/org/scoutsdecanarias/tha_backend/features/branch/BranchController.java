@@ -17,6 +17,12 @@ public class BranchController {
 
     private final BranchRepository branches;
 
+    /** Para el formulario de solicitud de cuenta, que aún no tiene sesión: las mismas ramas, sin ningún dato más. */
+    @GetMapping("/public")
+    public List<BranchResponse> publicList() {
+        return list();
+    }
+
     /** Las cinco ramas, en orden. Exige sesión (lo decide la regla general de SecurityConfig). */
     @GetMapping
     public List<BranchResponse> list() {

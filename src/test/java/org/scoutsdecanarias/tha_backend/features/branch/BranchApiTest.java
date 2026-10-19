@@ -44,6 +44,15 @@ class BranchApiTest extends AbstractIntegrationTest {
     }
 
     @Test
+    void laListaPublicaParaElRegistroNoNecesitaSesion() throws Exception {
+        mvc.perform(get("/api/branches/public"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(5))
+                .andExpect(jsonPath("$[0].name").value("Castores"))
+                .andExpect(jsonPath("$[0].sortOrder").doesNotExist());
+    }
+
+    @Test
     void lasRamasSonFijasNoSePuedenCrearNiBorrar() throws Exception {
         activeUser("rama-admin@example.org", Set.of(Role.ADMIN));
         String token = accessToken("rama-admin@example.org");
